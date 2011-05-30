@@ -1,8 +1,8 @@
 require 'rubygems'
 require 'ruby-tmdb'
 
-# setup your API key - get one from http://www.themoviedb.org/account/signup
-Tmdb.api_key = File.read("_config.txt")                        
+# setup your API key - get one from http://www.themoviedb.org/account/signup and create a _config.txt file with the key
+Tmdb.api_key = begin File.read("_config.txt")
 
 def get_movie(movie_name)
   movie_data = {}  
@@ -33,5 +33,7 @@ movies_to_parse.each_index do |i|
 end
 
 File.open("./caladan_json.txt","w+") do |f|
+  f.write "parse_json("
   f.write all_movies.to_json
+  f.write ")"
 end
