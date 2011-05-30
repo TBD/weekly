@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>caladan browser</title>
+  <style type="text/css" media="screen">
+    * {font-size: 1em;text-decoration:none;font-family:Verdana;}
+    img {width:96px;margin:3px;height:135px;box-shadow: 0px 3px 4px #ccc;}    
+    img:hover {outline: 4px solid blue;}  
+    input {border: 3px solid #555;}
+    #info {color:yellow;display: inline;}
+	#overview {color:white}
+    #nav {position:fixed;top:0px;left:0; background: #555; padding: 3px; width: 100%;opacity:.9;min-height: 50px;border-bottom:3px solid #333;}
+    #output {padding-top:50px;}
+  </style>
+  <script type="text/javascript" charset="utf-8">
+    var movies;
+    function parse_json(obj)
+    {
+      movies = obj;
+    }   
+  </script>
+  <script src="caladan_json.txt" type="text/javascript" charset="utf-8"></script> 
+</head>
+<body>
+  <div id="nav">
+    <button id="help">?</button>
+    <input id="search" autocomplete="off">
+	<div id="info"></div>
+	<div id="overview"></div>
+  </div>
+  <div id="output"><div></div></div>
+  <script type="text/javascript" charset="utf-8">
+    inp = document.getElementById("search");
+    outp = document.getElementById("output");
+  	info_div = document.getElementById("info");
+	overview_div = document.getElementById("overview");
+    inp.focus();
+
+    //  trying to speed up by prefetching
+	function prefetch() {
+		if(!(navigator.userAgent.match(/iPhone/i)) || 
+		   !(navigator.userAgent.match(/iPod/i))) 
+		{
+			var ml = movies.length;
+			for (x in movies) {
+				var img_pref = new Image();
+				document.title = sprintf('%s of %s',x,ml)
+				if (movies[x].poster)
+				img_pref.src = movies[x].poster
+		  	}
+		}
+	}
+    // prefetch()
+    
+    //  help info
+    document.getElementById("help").onclick = function(){
+      alert("caladan browser\nby TBD\n\nsearch operators:\ng: genre\na: actors\ny: release year\nr: rating\nhd HD version\n!! no info movies");
+    }
+    
+    // TBD.utils.sprintf
+    function sprintf(format, etc) {
+        var arg = arguments;
+        var i = 1;
+        return format.replace(/%((%)|s)/g, function (m) { return m[2] || arg[i++] })
+    }             
+    
+	// TBD.utils.min2hr 
+	function min2hr(time) {
+		 var time = parseInt(time)
+		 return sprintf("%sh%sm",Math.floor(time/60),time % 60)
+	}
+  
+    // display the movie thumbnail and data
+    function show_movie(m, id) {            
+      var img = "failed.png"
+      if (m.poster)
+        img = m.poster
+
+      var a = document.createElement("a")
+      if (m.error)
+	  {
+        a.info = m.name + " [ no info ]"
+	  }
+      else
+	  {
+        a.info = sprintf('%s [%s%s | %s | %s | %s] with %s', m.name, m.HD?"HD | ":"", min2hr(m.runtime), m.release, m.rating, m.genres, m.actors)
+		a.overview = m.overview;
+	  }
+	
+	  if (m.imdb)                                  
+	  {
+        a.href = "http://www.imdb.com/title/" + m.imdb 
+		a.target = "_blank"
+	  }
+      a.id = id
+
+	  a.onmouseover = function(e) {
+		info_div.innerHTML = this.info.replace(/,/g,",&nbsp;");
+		overview_div.innerHTML = movies[this.id].overview
+	  }
+      
+      var i = document.createElement("img")
+      i.src = img
+      
+      a.appendChild(i);
+      return a
+    }
+    
+    function get_info_array(item, what, search)
+    {
+      for (y in movies[x][what]) 
+      {
+        // remove action item (eg g:)
+        if (movies[x][what][y].toLowerCase().search(search.substr(2).toLowerCase()) != -1)
+        {
+          return true;
+        }
+      }               
+      return false;
+    }
+  
+    // execute search after each keypress
+    inp.onkeyup = function(e)
+    {       
+      var txt = document.createElement("div")  
+      var search_array = inp.value.split(/\s/g)
+      var valid = [];
+      
+      for (x in movies) {       
+        valid = []
+        for (obj in search_array)
+        {   
+          search_token = search_array[obj]
+          valid_check = false;
+          switch(search_token.substr(0,2))
+          {
+            case "g:":
+              valid_check = get_info_array(movies[x],"genres",search_token);
+              break;
+            case "a:":
+              valid_check = get_info_array(movies[x],"actors",search_token);
+              break;
+            case "y:":
+              if (movies[x].release === search_token.substr(2))
+                valid_check = true
+              break;
+            case "r:":
+              if (movies[x].rating > parseFloat(search_token.substr(2)))
+                valid_check = true
+              break;      
+            case "hd":
+              if (movies[x].HD)
+                valid_check = true
+              break;
+            case "!!":
+			  if (movies[x].error)
+				valid_check = true
+			  break;
+            default:
+              if (movies[x].name.toLowerCase().search(search_token.toLowerCase()) != -1) 
+                valid_check = true          
+          }
+          valid.push(valid_check);          
+        }                         
+
+        //  if all checks are true display movie
+        if (valid.indexOf(false)===-1)
+        {
+          txt.appendChild(show_movie(movies[x], x))
+        }
+      }          
+      outp.replaceChild(txt,outp.firstChild)
+    }
+  </script>
+</body>
+</html>

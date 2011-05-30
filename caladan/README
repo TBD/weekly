@@ -1,0 +1,15 @@
+caladan browser
+
+description: 
+ search/browser for movies
+
+requirements: 
+ caladan.rb [ruby] - creates JSON file with movie info
+
+usage:
+ 1) create caladan movie list.txt ( ls > caladan movie list.txt)
+ 2) run caladan.rb to create the json file
+ 3) upload index.html, failed.png and caladan_json.txt to server
+
+tips:
+ use operators (eg g:comedy) for quick filters
