@@ -1,0 +1,93 @@
+<!doctype html>
+<head>
+	<script src="jquery.min.js"></script>
+	<script src="codemirror.js"></script>	
+	<script src="javascript.js"></script>        
+	<link rel="stylesheet" href="codemirror.css">	
+	<link rel="stylesheet" href="javascript.css">
+	<script src="coffee-script.js"></script>
+	<style type="text/css" media="screen">
+		* {font-family: monospace;}
+		hr {border: 2px solid #cca;}
+		#editor {width: 100%;min-height: 10em;}
+		#help {position:absolute;top:0px;right:10px;text-align:right;}
+		.box{margin: 10px 0 10px 0;border-bottom: 1px solid #eee; width: 98%;padding:10px;}
+		img {padding: 10px;}
+		#output {text-align:center;}
+	</style>
+</head>
+<body>
+	<textarea id="editor" spellcheck="false">
+box "I am the puma"
+img "logo.jpg"
+box "who are you ?", right
+box Date()
+	</textarea>
+	<div id="help">CoffeeScript + Custom functions editor<br>CMD/CTRL+ENTER - <button id="execute">execute</button></div>
+	<div id="info"></div>                                        
+	<hr>
+	<div id="output"></div> 
+	<script type="text/coffeescript" charset="utf-8">
+
+	# --- setup editor
+	cm_options = 
+		lineNumbers: true
+		enterMode: "keep"
+		onKeyEvent: (i,e) ->
+			if e.type == "keyup"
+				compileSource()
+				evalJS()
+			if e.keyCode == 13 && e.type == "keydown" && (e.ctrlKey || e.metaKey) && !e.altKey
+				e.stop()
+				evalJS()
+
+	editor = CodeMirror.fromTextArea(document.getElementById("editor"), cm_options)
+
+	# --- custom methods
+	right = "right"
+	box = (text, align="left") ->
+		x = jQuery(document.createElement("div"))
+		x.addClass("box")
+		x.css("text-align",align)
+		x.text(text)
+		x.appendTo('#output') 
+
+	img = (src) ->
+		x = document.createElement("img")
+		x.src = src
+		$("#output").append(x)
+		
+		
+	# --- compile and evaluate CoffeeScript code
+	clearInfo = -> 
+		$('#info').text("")	
+
+	compiledJS = ""
+	compileSource = ->       
+		clearInfo()		
+		source = editor.getValue()  
+		compiledJS = ''
+		try
+			compiledJS = CoffeeScript.compile source, bare: on
+		catch error
+			$('#info')[0].innerText = error.message    
+
+	evalJS = ->        
+		$('#output').text("")
+		if localStorage
+			localStorage.setItem("code",editor.getValue())
+		try                
+			eval compiledJS
+		catch error 
+			$('#info')[0].innerText = error
+
+	if localStorage			
+		editor.setValue(localStorage.getItem("code"))		 
+
+	$("#execute").click -> 
+		compileSource()
+		evalJS()
+
+	</script>       	
+</body>
+</html>

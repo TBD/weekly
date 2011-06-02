@@ -1,0 +1,16 @@
+twist
+
+description: 
+ CoffeeScript based realtime compile/run quick prototyper
+
+usage:
+ 1) write code in the editor
+ 2) ctrl+enter to compile and execute
+
+tips:
+ two functions are added - box "text" and img "image source" 
+
+contact:
+ TBD
+ plugins.ro
+ @tbdr 
