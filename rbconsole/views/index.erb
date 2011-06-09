@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+	<title>rbconsole</title>
+	<script src="http://code.jquery.com/jquery.min.js" type="text/javascript" charset="utf-8"></script>	
+	<style type="text/css" media="screen">
+	* {font-family: "Helvetica",sans-serif; font-size: 18px; margin-bottom: 5px;}
+	input {width: 99%; border: 2px solid #787; padding: 5px; background-color: #CDC;}
+	span {border-bottom: 1px solid #ddd;display:block;width: 100%;padding-bottom: 8px;} 
+	info {color: #ded; float: right; position: relative; top: -1.9em; padding-right: 5px;}
+	</style>
+	<script>
+		$(document).ready(function() {
+			$('#what').keypress(function(event) {
+				if (event.which == '13') {
+					$("#what").select();
+					if (this.value == "clear")
+					{     
+						$("#output").html("");
+						return;
+					}
+					event.preventDefault();
+					$.ajax({
+						type: "POST",
+						url: "/process",
+						data: "text=" + $("#what").val(),
+						success: function(msg){
+							$("#output").html("<span>" + msg + "</span>" + $("#output").html());
+						},
+	                    error: function(){
+							$("#output").html("server error");
+						}
+					});        
+				}
+			});
+		}); 
+	</script>
+</head>
+<body>
+	<input id="what" autofocus><info>enter ruby commands</info>
+	<div id="output">
+</body>
