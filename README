@@ -1,4 +1,5 @@
 Code Daily Release Weekly projects
 
-20110602 - twist   - CoffeeScript based realtime compile/run quick prototyper [CoffeeScript] 
-20110526 - caladan - movie browser [JS/Ruby]
+20110609 - rbconsole - execute ruby commands on server [JS/Ruby]
+20110602 - twist     - CoffeeScript based realtime compile/run quick prototyper [CoffeeScript] 
+20110526 - caladan   - movie browser [JS/Ruby]
