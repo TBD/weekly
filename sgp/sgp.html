@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name = "viewport" content = "width = 640">
+	<title>SoundCloud Group Player</title>
+	<style type="text/css" media="screen">
+		* {font-family:sans-serif;}
+		ul {display: block ;list-style-type:none;overflow: hidden;}
+		li {float:left;display:block;padding:10px;text-align:right;width:100px;height:100px;} 		
+		span {position:relative;top:-2em;color:white;
+					text-shadow: black 0px 0px 4px, #445 0px 0px 2px;}		
+		a {text-decoration:none;}
+		img {border-radius: 10px;}
+		.sel {background: blue;}
+		#tracks {margin-top: 4em;}
+	</style>
+</head>
+<body>
+	<div id="tracks"></div>
+	<audio id='audio' style="position: absolute; top: 2em; left: 0; width: 100%;" controls></audio> 
+
+	<script src="http://connect.soundcloud.com/2/latest.min.js" type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>		 
+
+	<script type="text/javascript" charset="utf-8">
+		var client_id = '596ec96904f6b0c0ee974f66b7270010';
+		var audio = document.getElementById('audio');
+		var tracks = document.getElementById('tracks');
+		var tracks_db = [];
+		var pos = 0;
+
+		function getTracks(){
+			SC.get('/groups/1658/tracks',function(tracks){
+				for (v in tracks) {
+					addTrack(tracks[v]);
+				}
+
+				showTracks();			
+			});								
+		};
+
+		// --- from SoundCloud player .js
+		function _hms(ms) {
+			return {
+				h: Math.floor(ms / (60 * 60 * 1000)),
+				m: Math.floor((ms / 60000) % 60),
+				s: Math.floor((ms / 1000) % 60)
+			};
+		}
+
+		function msToWords(ms) {
+			var hms = _hms(ms);
+			words = [];
+			if (hms.h > 0) {
+				words.push(hms.h);
+				words.push('h');
+			}
+			if (hms.m > 0) {
+				words.push(hms.m);
+				words.push('m');
+			}
+			if (hms.h === 0 && hms.m <= 1 && hms.s > 0) {
+				words.push(hms.s);
+				words.push('s');
+			}
+			return words.join('');
+		}
+
+		function showTracks(){
+			var buffer="";
+			for (x in tracks_db) {
+				var item = tracks_db[x]
+				buffer += '<li><a href="#" onclick="playTrack(' + x + ')">'
+				buffer += '<img id="'+ x +'" src="' + item.img + '">'
+				buffer += '<span>' + msToWords(item.duration) + "</span>"
+			}
+			tracks.innerHTML += "<ul>" + buffer + "</ul>"
+		};
+
+		function playTrack(no) {
+			audio.src = tracks_db[no].src;
+			audio.addEventListener("ended", endSong, false);
+			audio.play();
+			$(".sel").removeClass("sel")
+			jQuery($("ul li")[no]).addClass("sel")
+			pos = no;
+		}
+
+		function endSong() {
+			playTrack(++pos);
+		}
+
+		function addTrack(track) {
+			if (track.artwork_url) {
+				tracks_db.push(
+				{
+					img: track.artwork_url,
+					src: track.stream_url + '?client_id=' + client_id,
+					duration: track.duration
+				});
+			}
+		};
+
+		document.addEventListener('keydown', function(event) {
+			switch (event.keyCode) {
+				// --- space 
+				case 32:
+					audio.paused ? audio.play() : audio.pause();
+					break;
+
+				// --- prev track
+				case 37:
+					playTrack(--pos)
+					break;
+
+				// --- next track
+				case 39:
+					playTrack(++pos)
+					break;
+
+				// --- m(ute) 
+				case 77:
+					audio.volume = audio.volume ? 0 : 1;
+					break;
+			}
+
+		}, false );
+
+		// --- start code
+
+		// --- init SoundCloud API
+		SC.initialize({
+			client_id: client_id
+		});
+		
+		if (audio.canPlayType && audio.canPlayType('audio/mpeg;').replace(/no/, ''))
+			getTracks()
+		else
+			alert("your crap browser doesn't support MP3 decoding.\n\nswitch to Chome ;)")
+	</script>
+</body>
+</html>
