@@ -1,5 +1,6 @@
 Code Daily | Release Weekly projects
 
+20110821 - github_filter  - filter github messages on dashboard
 20110714 - sgp            - SoundCloud group player
 20110707 - soundcloud_cue - add cue play/set to SoundCloud online track player 
 20110609 - rbconsole      - execute ruby commands on server [JS/Ruby]

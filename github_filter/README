@@ -1,0 +1,15 @@
+project: 
+  github filter
+
+requirements:
+ http://defunkt.io/dotjs/ - dotjs by defunkt
+
+install:                            
+ 1. install dotjs
+ 2. copy github.com.js to your ~/.js
+ 3. go to github.com and play with filter buttons
+
+todo: 
+ * use localStorage to save button states
+ * filter correctly after More button is pressed
+ * convert to bookmarklet for non Chrome browser 
